@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Clima</title>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('clima-form').addEventListener('submit', function (event) {
+                event.preventDefault();
+                consultarClima();
+            });
+
+            async function consultarClima() {
+                const cidade = encodeURIComponent(document.getElementById('cidade').value);
+                try {
+                    const response = await fetch(`/clima/${cidade}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erro na requisição: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    document.getElementById('resultado').innerHTML = `
+                        <p>Cidade: ${data.cidade}</p>
+                        <p>Coordenadas: ${data.coordenadas.latitude}, ${data.coordenadas.longitude}</p>
+                        <p>Sensação térmica: ${data.condicoesAtuais.feels_like}°C</p>
+                        <p>Descrição: ${data.condicoesAtuais.descricao}</p>
+                    `;
+                } catch (error) {
+                    console.error('Erro ao consultar o clima:', error.message);
+                    document.getElementById('resultado').innerHTML = 'Erro ao consultar o clima. Verifique o console para mais detalhes.';
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Consulta de Clima</h1>
+    <form id="clima-form">
+        <label for="cidade">Nome da cidade:</label>
+        <input type="text" id="cidade" name="cidade" required>
+        <button type="submit">Consultar</button>
+    </form>
+    <div id="resultado"></div>
+</body>
+</html>
